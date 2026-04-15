@@ -1,0 +1,104 @@
+uses
+  System.SysUtils;
+
+procedure RenomearArquivo(const NomeAntigo, NomeNovo: string);
+begin
+  if FileExists(NomeAntigo) then
+  begin
+    RenameFile(NomeAntigo, NomeNovo);
+    WriteLn('Arquivo renomeado com sucesso!');
+  end
+  else
+    WriteLn('Erro: Arquivo não encontrado.');
+end;
+
+begin
+  // Exemplo de uso do procedimento
+  RenomearArquivo('C:\PastaExemplo\arquivo_antigo.txt', 'C:\PastaExemplo\arquivo_novo.txt');
+end.
+
+
+Este código verifica se o arquivo existe e, em caso afirmativo, o renomeia. Se o arquivo não for encontrado, ele exibirá uma mensagem de erro. Lembre-se de substituir 'C:\PastaExemplo\arquivo_antigo.txt' e `'C:\PastaExemplo
+
+
+
+uses
+  System.SysUtils;
+
+procedure CopiarArquivoRede(const ArquivoRede, ArquivoLocal: string);
+begin
+  if FileExists(ArquivoRede) then
+  begin
+    CopyFile(PChar(ArquivoRede), PChar(ArquivoLocal), False);
+    WriteLn('Arquivo copiado com sucesso para: ', ArquivoLocal);
+  end
+  else
+    WriteLn('Erro: Arquivo na rede não encontrado.');
+end;
+
+begin
+  // Exemplo de uso do procedimento
+  CopiarArquivoRede('\\NomeDoComputador\pasta\arquivo_na_rede.txt', 'C:\PastaLocal\arquivo_copiado.txt');
+end.
+
+
+Neste código, ArquivoRede deve ser o caminho completo do arquivo na rede, incluindo o nome do computador e o compartilhamento. ArquivoLocal é o caminho onde você deseja salvar o arquivo na sua máquina. Lembre-se de substituir \\NomeDoComputador\pasta\arquivo_na_rede.txt e C:\PastaLocal\arquivo_copiado.txt pelos caminhos corretos.
+
+
+
+uses
+  System.SysUtils, ShellApi;
+
+procedure AtualizarExecutavelNaRede(const ArquivoRede, ArquivoLocal: string);
+begin
+  if FileExists(ArquivoLocal) then
+  begin
+    // Certifique-se de que o aplicativo não está em execução antes de tentar atualizar
+    if not IsProcessRunning(ExtractFileName(ArquivoLocal)) then
+    begin
+      // Tenta copiar o novo executável da rede
+      if CopyFile(PChar(ArquivoRede), PChar(ArquivoLocal), False) then
+        WriteLn('Executável atualizado com sucesso.')
+      else
+        WriteLn('Erro ao copiar o arquivo da rede.');
+    end
+    else
+      WriteLn('Erro: O executável está em execução. Feche o programa antes de atualizar.');
+  end
+  else
+    WriteLn('Erro: Arquivo executável local não encontrado.');
+end;
+
+// Função auxiliar para verificar se um processo está em execução
+function IsProcessRunning(const FileName: string): Boolean;
+var
+  ContinueLoop: BOOL;
+  FSnapshotHandle: THandle;
+  FProcessEntry32: TProcessEntry32;
+begin
+  FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  FProcessEntry32.dwSize := SizeOf(FProcessEntry32);
+  ContinueLoop := Process32First(FSnapshotHandle, FProcessEntry32);
+
+  Result := False;
+  while Integer(ContinueLoop) <> 0 do
+  begin
+    if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile)) = UpperCase(FileName)) or
+       (UpperCase(FProcessEntry32.szExeFile) = UpperCase(FileName))) then
+    begin
+      Result := True;
+    end;
+    ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
+  end;
+  CloseHandle(FSnapshotHandle);
+end;
+
+begin
+  // Exemplo de uso da função de atualização
+  AtualizarExecutavelNaRede('\\NomeDoComputador\pasta\executavel_novo.exe', 'C:\CaminhoParaExecutavel\executavel_antigo.exe');
+end.
+
+
+Neste código, ArquivoRede é o caminho do novo executável na rede, e ArquivoLocal é o caminho do executável antigo na sua máquina local. A função AtualizarExecutavelNaRede verifica se o arquivo local existe e se o processo correspondente não está em execução. Se essas condições forem atendidas, ela tentará copiar o novo executável da rede para substituir o antigo. Lembre-se de substituir \\NomeDoComputador\pasta\executavel_novo.exe e C:\CaminhoParaExecutavel\executavel_antigo.exe pelos caminhos corretos.
+
+Espero que este exemplo seja útil para você. Se precisar de mais ajuda ou tiver outras perguntas, estou aqui para ajudar! 😊

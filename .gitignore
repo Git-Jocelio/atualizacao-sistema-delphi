@@ -1,0 +1,37 @@
+# Compilados
+*.exe
+*.dll
+*.bpl
+*.dcp
+*.dcu
+*.o
+*.obj
+
+# Cache e temporários
+*.identcache
+*.local
+*.stat
+*.tvsconfig
+*.dsk
+
+# Pastas de build
+Win32/
+Win64/
+Debug/
+Release/
+
+# Histórico do Delphi
+__history/
+
+# Arquivos de backup
+*.~*
+*.bak
+
+# Configuração de usuário (não versionar)
+*.dproj.local
+
+# Logs
+*.log
+
+# Outros
+*.rsm
