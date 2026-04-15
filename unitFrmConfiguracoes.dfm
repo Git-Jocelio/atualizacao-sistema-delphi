@@ -24,7 +24,6 @@ object frmConfiguracoes: TfrmConfiguracoes
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
-    ExplicitLeft = 8
     object tbs_configuracoes: TTabSheet
       Caption = 'Configura'#231#245'es'
       object pnl_fundo: TPanel
@@ -42,8 +41,6 @@ object frmConfiguracoes: TfrmConfiguracoes
         Color = 15263976
         ParentBackground = False
         TabOrder = 0
-        ExplicitWidth = 536
-        ExplicitHeight = 335
         object Label1: TLabel
           Left = 142
           Top = 101
@@ -208,10 +205,6 @@ object frmConfiguracoes: TfrmConfiguracoes
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 88
-        ExplicitTop = 136
-        ExplicitWidth = 185
-        ExplicitHeight = 41
         object dbg_log: TDBGrid
           Left = 0
           Top = 0
@@ -315,8 +308,8 @@ object frmConfiguracoes: TfrmConfiguracoes
     end
   end
   object pnl_login: TPanel
-    Left = 218
-    Top = 89
+    Left = 492
+    Top = 137
     Width = 265
     Height = 200
     BevelOuter = bvNone
@@ -360,7 +353,8 @@ object frmConfiguracoes: TfrmConfiguracoes
       Font.Name = 'Segoe UI Semibold'
       Font.Style = [fsBold]
       ParentFont = False
-      ExplicitWidth = 41
+      ExplicitLeft = 98
+      ExplicitTop = 21
     end
     object edt_senha: TEdit
       AlignWithMargins = True

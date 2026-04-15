@@ -126,6 +126,7 @@ end;
 
 procedure TfrmConfiguracoes.prc_logar;
 begin
+(*
   dm.qry.sql.Clear;
   dm.qry.open('select * from versao_app');
 
@@ -146,6 +147,27 @@ begin
     edt_descricao.text := dm.qry.fieldbyname('DESCRICAO').AsString;
     edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
   end;
+*)
+
+  if ((dm.qry.fieldbyname('USUARIO').AsString <> edt_login.Text) or
+      (dm.qry.fieldbyname('SENHA').AsString <> edt_senha.Text)) then
+  begin
+    ShowMessage('E-mail ou Senha Inválido');
+    close;
+    exit;
+  end else
+  begin
+    pnl_fundo.Enabled := true;
+    pnl_login.Visible   := false;
+    edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
+    lbl_endereco_origem.Caption := dm.qry.fieldbyname('ENDERECO_APP').AsString;
+    lbl_versao_atual.Caption := dm.qry.fieldbyname('VERSAO').AsString;
+    edt_nova_versao.text := dm.qry.fieldbyname('VERSAO').AsString;
+    edt_descricao.text := dm.qry.fieldbyname('DESCRICAO').AsString;
+    edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
+  end;
+
+
 
 end;
 
@@ -184,6 +206,7 @@ begin
   end;
 end;
 *)
+
 (*
 procedure TfrmConfiguracoes.SalvarVersao(const AVersao: string);
 var
@@ -213,6 +236,7 @@ end;
 
 procedure TfrmConfiguracoes.prc_atualizar_dados;
 begin
+(*
   dm.qry.sql.Clear;
   dm.qry.sql.add('update versao_app set DATA_HORA =:DATA_HORA, VERSAO=:VERSAO, ');
   dm.qry.sql.add('  DESCRICAO=:DESCRICAO, NOME_APP=:NOME_APP, ENDERECO_APP=:ENDERECO_APP');
@@ -227,6 +251,9 @@ begin
   dm.qry.ParamByName('ID').AsInteger := 1;
 
   dm.qry.ExecSQL;
+*)
+
+  dm.SalvarVersao(edt_nova_versao.Text, edt_login.text, edt_nome_app.Text, lbl_endereco_origem.Caption);
 
 end;
 

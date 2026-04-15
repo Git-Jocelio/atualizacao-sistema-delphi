@@ -33,11 +33,13 @@ type
     Panel3: TPanel;
     Label7: TLabel;
     lbl_user: TLabel;
-    procedure FormCreate(Sender: TObject);
     procedure pnl_botaoFecharClick(Sender: TObject);
     procedure btn_atualizar_agoraClick(Sender: TObject);
     procedure lblAbrirConfiguracoesClick(Sender: TObject);
     procedure btn_atualizar_depoisClick(Sender: TObject);
+
+    procedure FormCreate(Sender: TObject);
+
   private
     FNomeDoExecutavel: string;
     FCaminhoOrigem: string;
@@ -47,6 +49,7 @@ type
     function processExists(exeFileName: string): Boolean;
     procedure RegistrarAtualizacaoBanco;
     procedure prc_atualizar_tela;
+    procedure GravarLogAtualizacao(const Versao: string);
     { Private declarations }
   public
     {Recebido por parametro da tela de confirurações}
@@ -86,7 +89,8 @@ begin
       TFile.Copy(ArquivoRede, ArquivoLocal, True);
 
       {gravar log}
-      RegistrarAtualizacaoBanco;
+      //RegistrarAtualizacaoBanco;
+      GravarLogAtualizacao('1.0.0.2');
 
       ShellExecute(
         Handle,
@@ -117,16 +121,26 @@ begin
 end;
 
 procedure TfrmPrincipal.prc_atualizar_tela;
+var
+  Config: TStringList;
 begin
+  // vem do banco
+(*
   dm.qry.sql.Clear;
   dm.qry.open('select * from versao_app');
-
-  lbl_user.Caption := dm.qry.fieldbyname('USUARIO').AsString;
+  lbl_user.Caption   := dm.qry.fieldbyname('USUARIO').AsString;
   lbl_versao.Caption := 'Versão' + dm.qry.fieldbyname('VERSAO').AsString ;
-
   NomeDoExecutavel   := dm.qry.fieldbyname('NOME_APP').AsString;//'Aplicacao.exe';
   CaminhoOrigem      := dm.qry.fieldbyname('ENDERECO_APP').AsString;// 'Y:\Teste AT\';
-
+  lblNomeExecutável.Caption := NomeDoExecutavel;
+  lblcaminhoOrigiem.Caption := CaminhoOrigem;
+*)
+  // do ini
+  Config := dm.LerConfiguracoes;
+  lbl_user.Caption   := Config.Values['USUARIO'];
+  lbl_versao.Caption := 'Versão' + Config.Values['VERSAO'] ;
+  NomeDoExecutavel   := Config.Values['NOME_APP'];
+  CaminhoOrigem      := Config.Values['ENDEREO_APP'];// 'Y:\Teste AT\';
   lblNomeExecutável.Caption := NomeDoExecutavel;
   lblcaminhoOrigiem.Caption := CaminhoOrigem;
 
@@ -174,12 +188,11 @@ var
   caminhoLocal: string;
 begin
 
-  // pasta e executável onde à atualizar
+  // pasta e executável à atualizar
   caminhoLocal:= ExtractFilePath(Application.ExeName) + NomeDoExecutavel;
 
   {Só atualiza se o sistema estiver fechado}
   if not processExists(NomeDoExecutavel) then
-
     {copiar arquivo do servidor para a pasta local}
     CopiarArquivoRede( CaminhoOrigem + NomeDoExecutavel, caminhoLocal)
   else
@@ -267,6 +280,38 @@ begin
     end;
   finally
      IPWatch.Free;
+  end;
+end;
+
+
+procedure TfrmPrincipal.GravarLogAtualizacao(const Versao: string);
+var
+  CaminhoLog: string;
+  Linha: string;
+  FS: TFileStream;
+  Bytes: TBytes;
+begin
+  CaminhoLog := 'Y:\Teste AT\LogAtualizador.txt';
+
+  Linha := Format('%s | %s | Usuario: %s | Versao: %s%s',
+    [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now),
+     GetEnvironmentVariable('COMPUTERNAME'),
+     GetEnvironmentVariable('USERNAME'),
+     Versao,
+     sLineBreak]);
+
+  // Cria se não existir
+  if not FileExists(CaminhoLog) then
+    TFile.WriteAllText(CaminhoLog, '');
+
+  // Abre em modo compartilhado (IMPORTANTE)
+  FS := TFileStream.Create(CaminhoLog, fmOpenReadWrite or fmShareDenyNone);
+  try
+    FS.Seek(0, soEnd);
+    Bytes := TEncoding.UTF8.GetBytes(Linha);
+    FS.WriteBuffer(Bytes, Length(Bytes));
+  finally
+    FS.Free;
   end;
 end;
 
