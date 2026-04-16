@@ -32,7 +32,7 @@ type
     btn_atualizar_depois: TPanel;
     Panel3: TPanel;
     Label7: TLabel;
-    lbl_user: TLabel;
+    lbl_usuario: TLabel;
     procedure pnl_botaoFecharClick(Sender: TObject);
     procedure btn_atualizar_agoraClick(Sender: TObject);
     procedure lblAbrirConfiguracoesClick(Sender: TObject);
@@ -89,7 +89,7 @@ begin
       TFile.Copy(ArquivoRede, ArquivoLocal, True);
 
       {gravar log}
-      //RegistrarAtualizacaoBanco;
+      //jocelio aqui passar a versão por variavel: corrigir depois
       GravarLogAtualizacao('1.0.0.2');
 
       ShellExecute(
@@ -117,7 +117,6 @@ end;
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   prc_atualizar_tela;
-
 end;
 
 procedure TfrmPrincipal.prc_atualizar_tela;
@@ -135,14 +134,18 @@ begin
   lblNomeExecutável.Caption := NomeDoExecutavel;
   lblcaminhoOrigiem.Caption := CaminhoOrigem;
 *)
-  // do ini
+
+  // ler configurações do inifile
   Config := dm.LerConfiguracoes;
-  lbl_user.Caption   := Config.Values['USUARIO'];
-  lbl_versao.Caption := 'Versão' + Config.Values['VERSAO'] ;
-  NomeDoExecutavel   := Config.Values['NOME_APP'];
-  CaminhoOrigem      := Config.Values['ENDEREO_APP'];// 'Y:\Teste AT\';
+  // atualizar componentes visuais
+  lbl_usuario.Caption   := Config.Values['USUARIO'];
+  lbl_versao.Caption    := 'Versão' + Config.Values['VERSAO'] ;
   lblNomeExecutável.Caption := NomeDoExecutavel;
   lblcaminhoOrigiem.Caption := CaminhoOrigem;
+
+  // atualizar variaveis
+  CaminhoOrigem    := Config.Values['ENDEREO_APP'];// 'Y:\Teste AT\';
+  NomeDoExecutavel := Config.Values['NOME_APP'];
 
 end;
 
@@ -161,11 +164,13 @@ begin
           CaminhoOrigem := frmConfiguracoes.enderecoBanco;
           lblcaminhoOrigiem.Caption := CaminhoOrigem;
         end;
-
-        NovaVersao :=  frmConfiguracoes.edt_nova_versao.Text;
-        btn_atualizar_agora.Caption := 'Atualizar para versão :' + NovaVersao;
+        NomeDoExecutavel := frmConfiguracoes.NomeDoExecutavel;
+        CaminhoOrigem    := frmConfiguracoes.CaminhoOrigem;
+        NovaVersao       :=  frmConfiguracoes.edt_nova_versao.Text;
 
         prc_atualizar_tela;
+        btn_atualizar_agora.Caption := 'Atualizar para versão :' + NovaVersao;
+
       end;
     end;
   finally
@@ -300,7 +305,7 @@ begin
      Versao,
      sLineBreak]);
 
-  // Cria se não existir
+  // Cria(um arquivo vazio) se não existir
   if not FileExists(CaminhoLog) then
     TFile.WriteAllText(CaminhoLog, '');
 
@@ -313,6 +318,7 @@ begin
   finally
     FS.Free;
   end;
+
 end;
 
 

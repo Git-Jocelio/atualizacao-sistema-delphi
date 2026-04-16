@@ -37,6 +37,9 @@ type
     Label8: TLabel;
     edt_login: TEdit;
     btn_logar: TBitBtn;
+    Label9: TLabel;
+    edt_nova_senha: TEdit;
+    BitBtn1: TBitBtn;
     procedure btn_enderecoClick(Sender: TObject);
     procedure btnFecharClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -45,9 +48,12 @@ type
     procedure PageControl1Change(Sender: TObject);
     procedure tbs_logShow(Sender: TObject);
     procedure btn_logarClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     FenderecoBanco: string;
     Fconfirmado: boolean;
+    FNomeDoExecutavel: string;
+    FCaminhoOrigem: string;
     //function GetVersaoServidor: Integer;
     //procedure SalvarVersao(const AVersao: string);
     procedure prc_atualizar_dados;
@@ -56,6 +62,8 @@ type
   public
     property enderecoBanco: string read FenderecoBanco write FenderecoBanco;
     property confirmado: boolean read Fconfirmado write Fconfirmado;
+    property NomeDoExecutavel: string read FNomeDoExecutavel write FNomeDoExecutavel;
+    property CaminhoOrigem: string read FCaminhoOrigem write FCaminhoOrigem;
   end;
 
 var
@@ -64,6 +72,11 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TfrmConfiguracoes.BitBtn1Click(Sender: TObject);
+begin
+  close;
+end;
 
 procedure TfrmConfiguracoes.btnFecharClick(Sender: TObject);
 begin
@@ -89,6 +102,21 @@ end;
 
 procedure TfrmConfiguracoes.btnSalvarAtualizacoesClick(Sender: TObject);
 begin
+  {validações}
+  if edt_nome_app.text = '' then
+  begin
+    ShowMessage('Informe o nome do APlicativo a ser Atualizado') ;
+    edt_nome_app.SetFocus;
+    exit;
+  end;
+
+  if lbl_endereco_origem.Caption = 'C:\' then
+  begin
+    ShowMessage('Informe o endereço onde a nova versão do se encontra') ;
+    btn_endereco.Click;
+    exit;
+  end;
+
   if strtoint(edt_nova_versao.text) < strtoint(lbl_versao_atual.Caption) then
   begin
     ShowMessage('Versão inválida') ;
@@ -108,6 +136,7 @@ begin
   end;
 
   close;
+
 end;
 
 procedure TfrmConfiguracoes.FormCreate(Sender: TObject);
@@ -117,14 +146,13 @@ end;
 
 procedure TfrmConfiguracoes.FormShow(Sender: TObject);
 begin
-
   pnl_fundo.Enabled := false;
   pnl_login.Visible := true;
-
-
 end;
 
 procedure TfrmConfiguracoes.prc_logar;
+var
+  Config: TStringList;
 begin
 (*
   dm.qry.sql.Clear;
@@ -149,25 +177,30 @@ begin
   end;
 *)
 
-  if ((dm.qry.fieldbyname('USUARIO').AsString <> edt_login.Text) or
-      (dm.qry.fieldbyname('SENHA').AsString <> edt_senha.Text)) then
+  // vem do arquivo ini
+  Config := dm.LerConfiguracoes;
+
+  if ((Config.Values['USUARIO'] <> edt_login.Text) or
+      (Config.Values['SENHA'] <> edt_senha.Text)) then
   begin
     ShowMessage('E-mail ou Senha Inválido');
     close;
     exit;
   end else
   begin
+    lbl_endereco_origem.Caption := Config.Values['ENDERECO_APP'];
+    edt_nome_app.text := Config.Values['NOME_APP'];
+    lbl_versao_atual.Caption := Config.Values['VERSAO'];
+    edt_nova_versao.text := Config.Values['VERSAO'];
+    edt_descricao.text := Config.Values['DESCRICAO'];
+
+    NomeDoExecutavel := Config.Values['NOME_APP'];
+    CaminhoOrigem    := Config.Values['ENDEREO_APP'];// 'Y:\Teste AT\';
+
     pnl_fundo.Enabled := true;
-    pnl_login.Visible   := false;
-    edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
-    lbl_endereco_origem.Caption := dm.qry.fieldbyname('ENDERECO_APP').AsString;
-    lbl_versao_atual.Caption := dm.qry.fieldbyname('VERSAO').AsString;
-    edt_nova_versao.text := dm.qry.fieldbyname('VERSAO').AsString;
-    edt_descricao.text := dm.qry.fieldbyname('DESCRICAO').AsString;
-    edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
+    pnl_login.Visible := false;
+
   end;
-
-
 
 end;
 
@@ -253,7 +286,8 @@ begin
   dm.qry.ExecSQL;
 *)
 
-  dm.SalvarVersao(edt_nova_versao.Text, edt_login.text, edt_nome_app.Text, lbl_endereco_origem.Caption);
+  // salva IniFile
+  dm.SalvarVersao(edt_nova_versao.Text, edt_login.text, edt_nova_senha.text,edt_nome_app.Text, lbl_endereco_origem.Caption, edt_descricao.Text);
 
 end;
 
@@ -261,8 +295,12 @@ end;
 
 procedure TfrmConfiguracoes.tbs_logShow(Sender: TObject);
 begin
+{  buscar do BD
   dm.qry.SQL.Clear;
   dm.qry.Open('select * from UPDATE_LOG order by id');
+}
+ // listar log a partir de um txt
+
 end;
 
 end.

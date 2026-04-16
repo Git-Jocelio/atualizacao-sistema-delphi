@@ -41,9 +41,10 @@ object frmConfiguracoes: TfrmConfiguracoes
         Color = 15263976
         ParentBackground = False
         TabOrder = 0
+        ExplicitLeft = -4
         object Label1: TLabel
           Left = 142
-          Top = 101
+          Top = 94
           Width = 218
           Height = 15
           Caption = 'Endere'#231'o onde se encontra a nova vers'#227'o'
@@ -57,8 +58,8 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object lbl_endereco_origem: TLabel
           Left = 169
-          Top = 122
-          Width = 15
+          Top = 118
+          Width = 296
           Height = 15
           Caption = 'C:\'
           Font.Charset = ANSI_CHARSET
@@ -70,7 +71,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object Label2: TLabel
           Left = 142
-          Top = 160
+          Top = 153
           Width = 67
           Height = 15
           Caption = 'Vers'#227'o atual:'
@@ -83,7 +84,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object lbl_versao_atual: TLabel
           Left = 217
-          Top = 158
+          Top = 151
           Width = 27
           Height = 17
           Caption = '100.1'
@@ -96,7 +97,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object Label4: TLabel
           Left = 142
-          Top = 199
+          Top = 188
           Width = 72
           Height = 15
           Caption = 'Vers'#227'o Nova :'
@@ -109,7 +110,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object btnSalvarAtualizacoes: TSpeedButton
           Left = 142
-          Top = 288
+          Top = 299
           Width = 153
           Height = 29
           Caption = 'Confirme as atualiza'#231#245'es'
@@ -117,7 +118,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object Label3: TLabel
           Left = 142
-          Top = 240
+          Top = 227
           Width = 58
           Height = 15
           Caption = 'Descri'#231#227'o :'
@@ -130,7 +131,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object Label6: TLabel
           Left = 142
-          Top = 60
+          Top = 53
           Width = 75
           Height = 15
           Caption = 'Nome do App'
@@ -157,18 +158,31 @@ object frmConfiguracoes: TfrmConfiguracoes
           ParentFont = False
           ExplicitWidth = 153
         end
+        object Label9: TLabel
+          Left = 142
+          Top = 264
+          Width = 64
+          Height = 15
+          Caption = 'Nova Senha'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
         object btnFechar: TBitBtn
           Left = 294
-          Top = 288
-          Width = 75
+          Top = 299
+          Width = 155
           Height = 29
-          Caption = 'Fechar'
+          Caption = 'Sair de configura'#231#245'es'
           TabOrder = 0
           OnClick = btnFecharClick
         end
         object edt_nova_versao: TEdit
           Left = 225
-          Top = 196
+          Top = 185
           Width = 394
           Height = 23
           NumbersOnly = True
@@ -177,7 +191,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object edt_descricao: TEdit
           Left = 225
-          Top = 237
+          Top = 224
           Width = 394
           Height = 23
           TabOrder = 2
@@ -185,11 +199,19 @@ object frmConfiguracoes: TfrmConfiguracoes
         end
         object edt_nome_app: TEdit
           Left = 225
-          Top = 55
+          Top = 48
           Width = 394
           Height = 23
           TabOrder = 3
           TextHint = 'Informe o nome do app'
+        end
+        object edt_nova_senha: TEdit
+          Left = 225
+          Top = 261
+          Width = 394
+          Height = 23
+          TabOrder = 4
+          TextHint = 'Trocar de senha'
         end
       end
     end
@@ -308,10 +330,15 @@ object frmConfiguracoes: TfrmConfiguracoes
     end
   end
   object pnl_login: TPanel
-    Left = 492
-    Top = 137
+    AlignWithMargins = True
+    Left = 264
+    Top = 113
     Width = 265
-    Height = 200
+    Height = 224
+    Margins.Left = 10
+    Margins.Top = 35
+    Margins.Right = 10
+    Margins.Bottom = 15
     BevelOuter = bvNone
     Color = clWhite
     ParentBackground = False
@@ -353,8 +380,7 @@ object frmConfiguracoes: TfrmConfiguracoes
       Font.Name = 'Segoe UI Semibold'
       Font.Style = [fsBold]
       ParentFont = False
-      ExplicitLeft = 98
-      ExplicitTop = 21
+      ExplicitWidth = 41
     end
     object edt_senha: TEdit
       AlignWithMargins = True
@@ -411,6 +437,22 @@ object frmConfiguracoes: TfrmConfiguracoes
       Caption = 'Logar'
       TabOrder = 2
       OnClick = btn_logarClick
+    end
+    object BitBtn1: TBitBtn
+      AlignWithMargins = True
+      Left = 10
+      Top = 191
+      Width = 245
+      Height = 25
+      Margins.Left = 10
+      Margins.Top = 10
+      Margins.Right = 10
+      Margins.Bottom = 0
+      Align = alTop
+      Caption = 'Sair de login'
+      TabOrder = 3
+      OnClick = BitBtn1Click
+      ExplicitTop = 156
     end
   end
   object OpenDialog: TOpenDialog

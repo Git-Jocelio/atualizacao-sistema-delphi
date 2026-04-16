@@ -449,8 +449,7 @@
       Height = 377
       Align = alClient
       Shape = bsTopLine
-      ExplicitTop = 40
-      ExplicitHeight = 365
+      ExplicitLeft = 6
     end
     object Label2: TLabel
       Left = 110
@@ -525,7 +524,7 @@
         Font.Style = []
         ParentFont = False
       end
-      object lbl_user: TLabel
+      object lbl_usuario: TLabel
         Left = 259
         Top = 8
         Width = 73
