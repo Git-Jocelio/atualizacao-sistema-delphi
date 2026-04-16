@@ -37,8 +37,7 @@ type
     procedure btn_atualizar_agoraClick(Sender: TObject);
     procedure lblAbrirConfiguracoesClick(Sender: TObject);
     procedure btn_atualizar_depoisClick(Sender: TObject);
-
-    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
 
   private
     FNomeDoExecutavel: string;
@@ -104,7 +103,7 @@ begin
       ShowMessage('Sistema atualizado com sucesso.') ;
     end
     else
-      ShowMessage('Erro: Arquivo na rede não encontrado.');
+      ShowMessage('Erro: Arquivo na rede não encontrado99999.');
   except
       on E: Exception do
         ShowMessage('Erro ao atualizar: ' + E.Message);
@@ -114,7 +113,7 @@ begin
 
 end;
 
-procedure TfrmPrincipal.FormCreate(Sender: TObject);
+procedure TfrmPrincipal.FormShow(Sender: TObject);
 begin
   prc_atualizar_tela;
 end;
@@ -137,15 +136,15 @@ begin
 
   // ler configurações do inifile
   Config := dm.LerConfiguracoes;
+  // atualizar variaveis
+  CaminhoOrigem    := Config.Values['ENDERECO_APP']+'\';// 'Y:\Teste AT\';
+  NomeDoExecutavel := Config.Values['NOME_APP'];
+
   // atualizar componentes visuais
   lbl_usuario.Caption   := Config.Values['USUARIO'];
   lbl_versao.Caption    := 'Versão' + Config.Values['VERSAO'] ;
   lblNomeExecutável.Caption := NomeDoExecutavel;
   lblcaminhoOrigiem.Caption := CaminhoOrigem;
-
-  // atualizar variaveis
-  CaminhoOrigem    := Config.Values['ENDEREO_APP'];// 'Y:\Teste AT\';
-  NomeDoExecutavel := Config.Values['NOME_APP'];
 
 end;
 
@@ -162,11 +161,11 @@ begin
         if frmConfiguracoes.enderecoBanco <> '' then
         begin
           CaminhoOrigem := frmConfiguracoes.enderecoBanco;
-          lblcaminhoOrigiem.Caption := CaminhoOrigem;
+          lblcaminhoOrigiem.Caption := frmConfiguracoes.CaminhoOrigem;
         end;
         NomeDoExecutavel := frmConfiguracoes.NomeDoExecutavel;
         CaminhoOrigem    := frmConfiguracoes.CaminhoOrigem;
-        NovaVersao       :=  frmConfiguracoes.edt_nova_versao.Text;
+        NovaVersao       := frmConfiguracoes.edt_nova_versao.Text;
 
         prc_atualizar_tela;
         btn_atualizar_agora.Caption := 'Atualizar para versão :' + NovaVersao;
@@ -198,8 +197,12 @@ begin
 
   {Só atualiza se o sistema estiver fechado}
   if not processExists(NomeDoExecutavel) then
+    begin
     {copiar arquivo do servidor para a pasta local}
-    CopiarArquivoRede( CaminhoOrigem + NomeDoExecutavel, caminhoLocal)
+    ShowMessage( 'caminho servidor : ' + CaminhoOrigem + NomeDoExecutavel + slinebreak +
+                 'caminho local : ' + caminhoLocal );
+    CopiarArquivoRede( CaminhoOrigem + NomeDoExecutavel, caminhoLocal);
+  end
   else
   begin
     ShowMessage('Feche a aplicação SIGECORP e tente novamente mais tarde !')

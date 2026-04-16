@@ -11,7 +11,7 @@
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poDesktopCenter
-  OnCreate = FormCreate
+  OnShow = FormShow
   TextHeight = 15
   object pnlLateral: TPanel
     Left = 0

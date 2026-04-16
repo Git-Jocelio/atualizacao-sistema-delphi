@@ -41,7 +41,6 @@ object frmConfiguracoes: TfrmConfiguracoes
         Color = 15263976
         ParentBackground = False
         TabOrder = 0
-        ExplicitLeft = -4
         object Label1: TLabel
           Left = 142
           Top = 94
@@ -59,7 +58,7 @@ object frmConfiguracoes: TfrmConfiguracoes
         object lbl_endereco_origem: TLabel
           Left = 169
           Top = 118
-          Width = 296
+          Width = 15
           Height = 15
           Caption = 'C:\'
           Font.Charset = ANSI_CHARSET
@@ -452,7 +451,6 @@ object frmConfiguracoes: TfrmConfiguracoes
       Caption = 'Sair de login'
       TabOrder = 3
       OnClick = BitBtn1Click
-      ExplicitTop = 156
     end
   end
   object OpenDialog: TOpenDialog
