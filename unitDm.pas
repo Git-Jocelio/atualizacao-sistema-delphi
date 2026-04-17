@@ -47,7 +47,7 @@ begin
 
   Ini := TIniFile.Create(CaminhoINI);
   try
-showmessage('lendo o ini') ;
+//showmessage('lendo o ini') ;
     // O segundo parâmetro é o valor padrão caso a chave não exista
     Result.Values['VERSAO']   := Ini.ReadString('SISTEMA', 'VERSAO', '0.0.0.0');
     Result.Values['USUARIO']  := Ini.ReadString('SISTEMA', 'USUARIO', '');

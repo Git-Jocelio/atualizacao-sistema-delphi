@@ -46,7 +46,6 @@ type
     procedure CopiarArquivoRede(const ArquivoRede, ArquivoLocal: string);
     procedure RenomearArquivo(const NomeAntigo, NomeNovo: string);
     function processExists(exeFileName: string): Boolean;
-    procedure RegistrarAtualizacaoBanco;
     procedure prc_atualizar_tela;
     procedure GravarLogAtualizacao(const Versao: string);
     { Private declarations }
@@ -100,10 +99,10 @@ begin
         SW_SHOWNORMAL
       );
 
-      ShowMessage('Sistema atualizado com sucesso.') ;
+    //  ShowMessage('Sistema atualizado com sucesso.') ;
     end
     else
-      ShowMessage('Erro: Arquivo na rede não encontrado99999.');
+      ShowMessage('Erro: Arquivo na rede não encontrado.');
   except
       on E: Exception do
         ShowMessage('Erro ao atualizar: ' + E.Message);
@@ -199,8 +198,8 @@ begin
   if not processExists(NomeDoExecutavel) then
     begin
     {copiar arquivo do servidor para a pasta local}
-    ShowMessage( 'caminho servidor : ' + CaminhoOrigem + NomeDoExecutavel + slinebreak +
-                 'caminho local : ' + caminhoLocal );
+//    ShowMessage( 'caminho servidor : ' + CaminhoOrigem + NomeDoExecutavel + slinebreak +
+//                 'caminho local : ' + caminhoLocal );
     CopiarArquivoRede( CaminhoOrigem + NomeDoExecutavel, caminhoLocal);
   end
   else
@@ -255,41 +254,6 @@ begin
   end;
 end;
 
-procedure TfrmPrincipal.RegistrarAtualizacaoBanco;
-var
-  IPWatch: TIdIPWatch;
-begin
-  IPWatch := TIdIPWatch.Create(nil);
-  try
-    try
-
-      dm.qry.Connection := dm.Conn;
-
-      with dm.qry do
-      begin
-        Close;
-        SQL.Clear;
-        SQL.Add('INSERT INTO UPDATE_LOG');
-        SQL.Add('(DATA_HORA, IP, MAQUINA, USUARIO, VERSAO)');
-        SQL.Add('VALUES (:DATA, :IP, :MAQ, :USER, :VER)');
-
-        ParamByName('DATA').AsDateTime := Now;
-        ParamByName('IP').AsString := IPWatch.LocalIP;
-        ParamByName('MAQ').AsString := GetEnvironmentVariable('COMPUTERNAME');
-        ParamByName('USER').AsString := GetEnvironmentVariable('USERNAME');
-        ParamByName('VER').AsInteger := 14;
-
-        ExecSQL;
-      end;
-
-    except
-      on E: Exception do
-        ShowMessage('Erro ao gravar log: ' + E.Message);
-    end;
-  finally
-     IPWatch.Free;
-  end;
-end;
 
 
 procedure TfrmPrincipal.GravarLogAtualizacao(const Versao: string);

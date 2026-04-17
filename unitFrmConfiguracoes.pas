@@ -29,8 +29,6 @@ type
     edt_descricao: TEdit;
     edt_nome_app: TEdit;
     pnl_config: TPanel;
-    dbg_log: TDBGrid;
-    DataSource: TDataSource;
     pnl_login: TPanel;
     Label7: TLabel;
     edt_senha: TEdit;
@@ -40,24 +38,36 @@ type
     Label9: TLabel;
     edt_nova_senha: TEdit;
     BitBtn1: TBitBtn;
+    StringGrid: TStringGrid;
+    Panel1: TPanel;
+    edtFiltroMaquina: TEdit;
+    edtFiltroData: TEdit;
+    Label10: TLabel;
+    Label11: TLabel;
     procedure btn_enderecoClick(Sender: TObject);
     procedure btnFecharClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSalvarAtualizacoesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure PageControl1Change(Sender: TObject);
     procedure tbs_logShow(Sender: TObject);
     procedure btn_logarClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
+    procedure StringGridDrawCell(Sender: TObject; ACol, ARow: LongInt;
+      Rect: TRect; State: TGridDrawState);
+    procedure FormDestroy(Sender: TObject);
+    procedure edtFiltroMaquinaChange(Sender: TObject);
+    procedure edtFiltroDataChange(Sender: TObject);
   private
     FenderecoBanco: string;
     Fconfirmado: boolean;
     FNomeDoExecutavel: string;
     FCaminhoOrigem: string;
-    //function GetVersaoServidor: Integer;
-    //procedure SalvarVersao(const AVersao: string);
+    FLogOriginal: TStringList;
     procedure prc_atualizar_dados;
     procedure prc_logar;
+    procedure CarregarLog;
+    procedure configurarGrid;
+    procedure AplicarFiltro;
     { Private declarations }
   public
     property enderecoBanco: string read FenderecoBanco write FenderecoBanco;
@@ -142,6 +152,12 @@ end;
 procedure TfrmConfiguracoes.FormCreate(Sender: TObject);
 begin
   confirmado := false;
+  FLogOriginal := TStringList.Create;
+end;
+
+procedure TfrmConfiguracoes.FormDestroy(Sender: TObject);
+begin
+ FLogOriginal.Free;
 end;
 
 procedure TfrmConfiguracoes.FormShow(Sender: TObject);
@@ -154,28 +170,6 @@ procedure TfrmConfiguracoes.prc_logar;
 var
   Config: TStringList;
 begin
-(*
-  dm.qry.sql.Clear;
-  dm.qry.open('select * from versao_app');
-
-  if ((dm.qry.fieldbyname('USUARIO').AsString <> edt_login.Text) or
-      (dm.qry.fieldbyname('SENHA').AsString <> edt_senha.Text)) then
-  begin
-    ShowMessage('E-mail ou Senha Inválido');
-    close;
-    exit;
-  end else
-  begin
-    pnl_fundo.Enabled := true;
-    pnl_login.Visible   := false;
-    edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
-    lbl_endereco_origem.Caption := dm.qry.fieldbyname('ENDERECO_APP').AsString;
-    lbl_versao_atual.Caption := dm.qry.fieldbyname('VERSAO').AsString;
-    edt_nova_versao.text := dm.qry.fieldbyname('VERSAO').AsString;
-    edt_descricao.text := dm.qry.fieldbyname('DESCRICAO').AsString;
-    edt_nome_app.text := dm.qry.fieldbyname('NOME_APP').AsString;
-  end;
-*)
 
   // vem do arquivo ini
   Config := dm.LerConfiguracoes;
@@ -195,7 +189,7 @@ begin
     edt_descricao.text := Config.Values['DESCRICAO'];
 
     NomeDoExecutavel := Config.Values['NOME_APP'];
-    CaminhoOrigem    := Config.Values['ENDEREO_APP'];// 'Y:\Teste AT\';
+    CaminhoOrigem    := Config.Values['ENDERECO_APP'];// 'Y:\Teste AT\';
 
     pnl_fundo.Enabled := true;
     pnl_login.Visible := false;
@@ -205,102 +199,171 @@ begin
 end;
 
 
-procedure TfrmConfiguracoes.PageControl1Change(Sender: TObject);
-begin
-
-end;
-
-(*
-function TfrmConfiguracoes.GetVersaoServidor: Integer;
+procedure TfrmConfiguracoes.StringGridDrawCell(Sender: TObject; ACol,
+  ARow: LongInt; Rect: TRect; State: TGridDrawState);
 var
-  Ini: TIniFile;
-  CaminhoINI: string;
-  ValorStr: string;
+  R: TRect;
+  Texto: string;
+  Flags: Integer;
 begin
-  CaminhoINI :=
-    IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) +
-    'config.ini';
+  with StringGrid.Canvas do
+  begin
+    // Fundo
+    if ARow = 0 then
+    begin
+      Brush.Color := $00D6D6D6;
+      Font.Style := [fsBold];
+    end
+    else
+    begin
+      if Odd(ARow) then
+        Brush.Color := $00F5F5F5
+      else
+        Brush.Color := clWhite;
 
-  if not FileExists(CaminhoINI) then
-    raise Exception.Create('Arquivo config.ini não encontrado.');
+      Font.Style := [];
+    end;
 
-  Ini := TIniFile.Create(CaminhoINI);
-  try
-    ValorStr := Ini.ReadString('SISTEMA', 'VERSAO', '');
+    // Seleção
+    if gdSelected in State then
+      Brush.Color := $00FFD580;
 
-    if Trim(ValorStr) = '' then
-      raise Exception.Create('VERSAO não encontrada no config.ini.');
+    FillRect(Rect);
 
-    if not TryStrToInt(ValorStr, Result) then
-      raise Exception.Create('VERSAO inválida no config.ini.');
+    Texto := StringGrid.Cells[ACol, ARow];
 
-  finally
-    Ini.Free;
+    // margem interna
+    R := Rect;
+    InflateRect(R, -5, 0);
+
+    // alinhamento
+    if ACol = 3 then
+      Flags := DT_RIGHT
+    else
+      Flags := DT_LEFT;
+
+    // desenho seguro (NÃO SANGRA)
+   DrawText(
+  StringGrid.Canvas.Handle,
+  PChar(Texto),
+  Length(Texto),
+  R,
+  Flags or DT_VCENTER or DT_SINGLELINE or DT_END_ELLIPSIS
+  );
   end;
 end;
-*)
-
-(*
-procedure TfrmConfiguracoes.SalvarVersao(const AVersao: string);
-var
-  Ini: TIniFile;
-  CaminhoINI: string;
-  ValorInt: Integer;
-begin
-  CaminhoINI :=
-    IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) +
-    'config.ini';
-
-  if Trim(AVersao) = '' then
-    raise Exception.Create('Informe uma versão válida.');
-
-  if not TryStrToInt(AVersao, ValorInt) then
-    raise Exception.Create('A versão deve ser numérica.');
-
-  Ini := TIniFile.Create(CaminhoINI);
-  try
-    Ini.WriteString('SISTEMA', 'VERSAO', AVersao);
-  finally
-    Ini.Free;
-  end;
-end;
-
-*)
 
 procedure TfrmConfiguracoes.prc_atualizar_dados;
 begin
-(*
-  dm.qry.sql.Clear;
-  dm.qry.sql.add('update versao_app set DATA_HORA =:DATA_HORA, VERSAO=:VERSAO, ');
-  dm.qry.sql.add('  DESCRICAO=:DESCRICAO, NOME_APP=:NOME_APP, ENDERECO_APP=:ENDERECO_APP');
-  dm.qry.sql.add('  WHERE ID=:ID');
-
-  dm.qry.ParamByName('DATA_HORA').AsDateTime := Time;
-  dm.qry.ParamByName('VERSAO').AsString := edt_nova_versao.Text;
-  dm.qry.ParamByName('DESCRICAO').AsString := edt_descricao.text;
-
-  dm.qry.ParamByName('NOME_APP').AsString := edt_nome_app.text;
-  dm.qry.ParamByName('ENDERECO_APP').AsString := lbl_endereco_origem.Caption;
-  dm.qry.ParamByName('ID').AsInteger := 1;
-
-  dm.qry.ExecSQL;
-*)
-
   // salva IniFile
   dm.SalvarVersao(edt_nova_versao.Text, edt_login.text, edt_nova_senha.text,edt_nome_app.Text, lbl_endereco_origem.Caption, edt_descricao.Text);
-
 end;
 
 
 
 procedure TfrmConfiguracoes.tbs_logShow(Sender: TObject);
 begin
-{  buscar do BD
-  dm.qry.SQL.Clear;
-  dm.qry.Open('select * from UPDATE_LOG order by id');
-}
  // listar log a partir de um txt
 
+
+ configurarGrid;
+ CarregarLog;
 end;
+
+procedure TfrmConfiguracoes.configurarGrid;
+begin
+  StringGrid.DefaultDrawing := False;
+  StringGrid.ColCount := 4;
+  StringGrid.FixedRows := 1;
+
+  StringGrid.Options := StringGrid.Options + [goRowSelect];
+  StringGrid.DefaultRowHeight := 25;
+
+  // Cabeçalho
+  StringGrid.Cells[0,0] := 'Data/Hora';
+  StringGrid.Cells[1,0] := 'Máquina';
+  StringGrid.Cells[2,0] := 'Usuário';
+  StringGrid.Cells[3,0] := 'Versão';
+
+  // Largura das colunas
+  StringGrid.ColWidths[0] := 150;
+  StringGrid.ColWidths[1] := 120;
+  StringGrid.ColWidths[2] := 120;
+  StringGrid.ColWidths[3] := 100;
+end;
+
+
+procedure TfrmConfiguracoes.edtFiltroDataChange(Sender: TObject);
+begin
+  AplicarFiltro;
+end;
+
+procedure TfrmConfiguracoes.edtFiltroMaquinaChange(Sender: TObject);
+begin
+  AplicarFiltro;
+end;
+
+procedure TfrmConfiguracoes.CarregarLog;
+var
+  Lista: TStringList;
+  i: Integer;
+  Linha, DataHora, Maquina, Usuario, Versao: string;
+  Partes: TArray<string>;
+begin
+  FLogOriginal.Clear;
+  FLogOriginal.LoadFromFile(
+    IncludeTrailingPathDelimiter(CaminhoOrigem) + 'LogAtualizador.txt'
+  );
+
+  AplicarFiltro;
+end;
+
+
+procedure TfrmConfiguracoes.AplicarFiltro;
+var
+  i, LinhaGrid: Integer;
+  Linha, DataHora, Maquina, Usuario, Versao: string;
+  Partes: TArray<string>;
+  FiltroMaquina, FiltroData: string;
+begin
+  FiltroMaquina := UpperCase(Trim(edtFiltroMaquina.Text));
+  FiltroData    := Trim(edtFiltroData.Text); // formato: YYYY-MM-DD
+
+  StringGrid.RowCount := 1;
+  LinhaGrid := 1;
+
+  for i := 0 to FLogOriginal.Count - 1 do
+  begin
+    Linha := FLogOriginal[i];
+    Partes := Linha.Split(['|']);
+
+    if Length(Partes) < 4 then Continue;
+
+    DataHora := Trim(Partes[0]);
+    Maquina  := Trim(Partes[1]);
+    Usuario  := Trim(StringReplace(Partes[2], 'Usuario:', '', []));
+    Versao   := Trim(StringReplace(Partes[3], 'Versao:', '', []));
+
+    //FILTRO
+    if (FiltroMaquina <> '') and
+       (Pos(FiltroMaquina, UpperCase(Maquina)) = 0) then
+      Continue;
+
+    if (FiltroData <> '') and
+       (Pos(FiltroData, DataHora) = 0) then
+      Continue;
+
+    // adiciona no grid
+    StringGrid.RowCount := LinhaGrid + 1;
+
+    StringGrid.Cells[0, LinhaGrid] := DataHora;
+    StringGrid.Cells[1, LinhaGrid] := Maquina;
+    StringGrid.Cells[2, LinhaGrid] := Usuario;
+    StringGrid.Cells[3, LinhaGrid] := Versao;
+
+    Inc(LinhaGrid);
+  end;
+end;
+
 
 end.
