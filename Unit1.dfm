@@ -11,6 +11,7 @@
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poDesktopCenter
+  OnClose = FormClose
   OnShow = FormShow
   TextHeight = 15
   object pnlLateral: TPanel
@@ -466,9 +467,9 @@
       WordWrap = True
     end
     object btn_atualizar_agora: TPanel
-      Left = 45
+      Left = 26
       Top = 259
-      Width = 152
+      Width = 180
       Height = 32
       Cursor = crHandPoint
       Caption = 'Atualizar Agora'
@@ -485,9 +486,9 @@
       OnClick = btn_atualizar_agoraClick
     end
     object btn_atualizar_depois: TPanel
-      Left = 200
+      Left = 210
       Top = 259
-      Width = 122
+      Width = 101
       Height = 32
       Cursor = crHandPoint
       Caption = 'Atualizar depois'

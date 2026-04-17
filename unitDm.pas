@@ -73,9 +73,6 @@ begin
   if Trim(AVersao) = '' then
     raise Exception.Create('Informe uma versão válida.');
 
-  if not TryStrToInt(AVersao, ValorInt) then
-    raise Exception.Create('A versão deve ser numérica.');
-
   Ini := TIniFile.Create(CaminhoINI);
   try
 //ShowMessage('alterando dados');

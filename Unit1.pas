@@ -38,22 +38,25 @@ type
     procedure lblAbrirConfiguracoesClick(Sender: TObject);
     procedure btn_atualizar_depoisClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
   private
     FNomeDoExecutavel: string;
     FCaminhoOrigem: string;
     FNovaVersao: string;
+    FDescricao: string;
     procedure CopiarArquivoRede(const ArquivoRede, ArquivoLocal: string);
     procedure RenomearArquivo(const NomeAntigo, NomeNovo: string);
     function processExists(exeFileName: string): Boolean;
     procedure prc_atualizar_tela;
-    procedure GravarLogAtualizacao(const Versao: string);
+    procedure GravarLogAtualizacao(const Versao, Descricao: string);
     { Private declarations }
   public
     {Recebido por parametro da tela de confirurações}
     property NomeDoExecutavel: string read FNomeDoExecutavel write FNomeDoExecutavel;
     property CaminhoOrigem: string read FCaminhoOrigem write FCaminhoOrigem;
     property NovaVersao: string read FNovaVersao write FNovaVersao;
+    property Descricao: string read FDescricao write FDescricao;
   end;
 
 var
@@ -81,14 +84,15 @@ begin
     if FileExists(ArquivoRede) then
     begin
       RenomearArquivo( CaminhoBase + NomeDoExecutavel,
-                       CaminhoBase + data + ChangeFileExt(NomeDoExecutavel, '.OLD'))  ;
+                       CaminhoBase + data + ChangeFileExt(NomeDoExecutavel, '.old'))  ;
 
 
       TFile.Copy(ArquivoRede, ArquivoLocal, True);
 
       {gravar log}
       //jocelio aqui passar a versão por variavel: corrigir depois
-      GravarLogAtualizacao('1.0.0.2');
+      ShowMessage('Descricao recebida: ' + Descricao);
+      GravarLogAtualizacao(NovaVersao, Descricao);
 
       ShellExecute(
         Handle,
@@ -98,7 +102,6 @@ begin
         PChar(CaminhoBase),
         SW_SHOWNORMAL
       );
-
     //  ShowMessage('Sistema atualizado com sucesso.') ;
     end
     else
@@ -108,8 +111,14 @@ begin
         ShowMessage('Erro ao atualizar: ' + E.Message);
   end;
 
-  Application.Terminate;
+  sleep(1000);
+  close;
 
+end;
+
+procedure TfrmPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   FreeAndNil(frmPrincipal);
 end;
 
 procedure TfrmPrincipal.FormShow(Sender: TObject);
@@ -165,6 +174,7 @@ begin
         NomeDoExecutavel := frmConfiguracoes.NomeDoExecutavel;
         CaminhoOrigem    := frmConfiguracoes.CaminhoOrigem;
         NovaVersao       := frmConfiguracoes.edt_nova_versao.Text;
+        Descricao       := frmConfiguracoes.edt_descricao.Text;
 
         prc_atualizar_tela;
         btn_atualizar_agora.Caption := 'Atualizar para versão :' + NovaVersao;
@@ -197,9 +207,6 @@ begin
   {Só atualiza se o sistema estiver fechado}
   if not processExists(NomeDoExecutavel) then
     begin
-    {copiar arquivo do servidor para a pasta local}
-//    ShowMessage( 'caminho servidor : ' + CaminhoOrigem + NomeDoExecutavel + slinebreak +
-//                 'caminho local : ' + caminhoLocal );
     CopiarArquivoRede( CaminhoOrigem + NomeDoExecutavel, caminhoLocal);
   end
   else
@@ -256,7 +263,7 @@ end;
 
 
 
-procedure TfrmPrincipal.GravarLogAtualizacao(const Versao: string);
+procedure TfrmPrincipal.GravarLogAtualizacao(const Versao, Descricao: string);
 var
   CaminhoLog: string;
   Linha: string;
@@ -265,18 +272,19 @@ var
 begin
   CaminhoLog := 'Y:\Teste AT\LogAtualizador.txt';
 
-  Linha := Format('%s | %s | Usuario: %s | Versao: %s%s',
-    [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now),
-     GetEnvironmentVariable('COMPUTERNAME'),
-     GetEnvironmentVariable('USERNAME'),
-     Versao,
-     sLineBreak]);
+  Linha := Format('%s | %s | Usuario: %s | Versao: %s | Descricao: %s%s',
+    [
+      FormatDateTime('yyyy-mm-dd hh:nn:ss', Now),
+      GetEnvironmentVariable('COMPUTERNAME'),
+      GetEnvironmentVariable('USERNAME'),
+      Versao,
+      'Descricao',
+      sLineBreak
+    ]);
 
-  // Cria(um arquivo vazio) se não existir
   if not FileExists(CaminhoLog) then
     TFile.WriteAllText(CaminhoLog, '');
 
-  // Abre em modo compartilhado (IMPORTANTE)
   FS := TFileStream.Create(CaminhoLog, fmOpenReadWrite or fmShareDenyNone);
   try
     FS.Seek(0, soEnd);
@@ -285,8 +293,6 @@ begin
   finally
     FS.Free;
   end;
-
 end;
-
 
 end.

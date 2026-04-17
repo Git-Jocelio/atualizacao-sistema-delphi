@@ -116,7 +116,7 @@ begin
   {validações}
   if edt_nome_app.text = '' then
   begin
-    ShowMessage('Informe o nome do APlicativo a ser Atualizado') ;
+    ShowMessage('Informe o nome do Aplicativo a ser Atualizado') ;
     edt_nome_app.SetFocus;
     exit;
   end;
@@ -309,7 +309,7 @@ end;
 procedure TfrmConfiguracoes.configurarGrid;
 begin
   StringGrid.DefaultDrawing := False;
-  StringGrid.ColCount := 4;
+  StringGrid.ColCount := 5;
   StringGrid.FixedRows := 1;
 
   StringGrid.Options := StringGrid.Options + [goRowSelect];
@@ -320,12 +320,14 @@ begin
   StringGrid.Cells[1,0] := 'Máquina';
   StringGrid.Cells[2,0] := 'Usuário';
   StringGrid.Cells[3,0] := 'Versão';
+  StringGrid.Cells[4,0] := 'Descrição';
 
   // Largura das colunas
   StringGrid.ColWidths[0] := 150;
   StringGrid.ColWidths[1] := 120;
   StringGrid.ColWidths[2] := 120;
   StringGrid.ColWidths[3] := 100;
+  StringGrid.ColWidths[4] := 200;
 end;
 
 
@@ -343,7 +345,7 @@ procedure TfrmConfiguracoes.CarregarLog;
 var
   Lista: TStringList;
   i: Integer;
-  Linha, DataHora, Maquina, Usuario, Versao: string;
+  Linha, DataHora, Maquina, Usuario, Versao, Descricao: string;
   Partes: TArray<string>;
 begin
   FLogOriginal.Clear;
@@ -358,7 +360,7 @@ end;
 procedure TfrmConfiguracoes.AplicarFiltro;
 var
   i, LinhaGrid: Integer;
-  Linha, DataHora, Maquina, Usuario, Versao: string;
+  Linha, DataHora, Maquina, Usuario, Versao, Descricao: string;
   Partes: TArray<string>;
   FiltroMaquina, FiltroData: string;
 begin
@@ -373,13 +375,13 @@ begin
     Linha := FLogOriginal[i];
     Partes := Linha.Split(['|']);
 
-    if Length(Partes) < 4 then Continue;
+    if Length(Partes) < 5 then Continue;
 
     DataHora := Trim(Partes[0]);
     Maquina  := Trim(Partes[1]);
     Usuario  := Trim(StringReplace(Partes[2], 'Usuario:', '', []));
     Versao   := Trim(StringReplace(Partes[3], 'Versao:', '', []));
-
+    Descricao := Trim(StringReplace(Partes[4], 'Descricao:', '', [rfIgnoreCase]));
     //FILTRO
     if (FiltroMaquina <> '') and
        (Pos(FiltroMaquina, UpperCase(Maquina)) = 0) then
@@ -396,6 +398,7 @@ begin
     StringGrid.Cells[1, LinhaGrid] := Maquina;
     StringGrid.Cells[2, LinhaGrid] := Usuario;
     StringGrid.Cells[3, LinhaGrid] := Versao;
+    StringGrid.Cells[4, LinhaGrid] := Descricao;
 
     Inc(LinhaGrid);
   end;
