@@ -5,8 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Buttons, Vcl.StdCtrls, IniFiles,
-  unitDm, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids;
-
+  unitDm, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  System.Math;
 type
   TfrmConfiguracoes = class(TForm)
     OpenDialog: TOpenDialog;
@@ -68,6 +68,7 @@ type
     procedure CarregarLog;
     procedure configurarGrid;
     procedure AplicarFiltro;
+    function CompararVersao(const V1, V2: string): Integer;
     { Private declarations }
   public
     property enderecoBanco: string read FenderecoBanco write FenderecoBanco;
@@ -127,7 +128,14 @@ begin
     exit;
   end;
 
-  if strtoint(edt_nova_versao.text) < strtoint(lbl_versao_atual.Caption) then
+  if edt_nova_versao.Text = trim('') then
+  begin
+    ShowMessage('Informe a versão');
+    edt_nova_versao.SetFocus;
+    Exit;
+  end;
+
+  if CompararVersao(edt_nova_versao.Text, lbl_versao_atual.Caption) < 0 then
   begin
     ShowMessage('Versão inválida') ;
     edt_nova_versao.Text := lbl_versao_atual.Caption;
@@ -147,6 +155,34 @@ begin
 
   close;
 
+end;
+
+
+function TfrmConfiguracoes.CompararVersao(const V1, V2: string): Integer;
+var
+  A1, A2: TArray<string>;
+  i, N1, N2: Integer;
+begin
+  A1 := V1.Split(['.']);
+  A2 := V2.Split(['.']);
+
+  for i := 0 to Max(Length(A1), Length(A2)) - 1 do
+  begin
+    if i < Length(A1) then
+      N1 := StrToIntDef(A1[i], 0)
+    else
+      N1 := 0;
+
+    if i < Length(A2) then
+      N2 := StrToIntDef(A2[i], 0)
+    else
+      N2 := 0;
+
+    if N1 < N2 then Exit(-1);
+    if N1 > N2 then Exit(1);
+  end;
+
+  Result := 0; // iguais
 end;
 
 procedure TfrmConfiguracoes.FormCreate(Sender: TObject);

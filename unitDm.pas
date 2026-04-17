@@ -78,7 +78,7 @@ begin
 
   Ini := TIniFile.Create(CaminhoINI);
   try
-ShowMessage('alterando dados');
+//ShowMessage('alterando dados');
     Ini.WriteString('SISTEMA', 'VERSAO', AVersao);
     Ini.WriteString('SISTEMA', 'USUARIO', AUsuario);
     //Ini.WriteString('SISTEMA', 'SENHA', ASenha);

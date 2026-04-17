@@ -234,10 +234,6 @@ object frmConfiguracoes: TfrmConfiguracoes
           FixedRows = 0
           TabOrder = 0
           OnDrawCell = StringGridDrawCell
-          ExplicitLeft = 128
-          ExplicitTop = 170
-          ExplicitWidth = 320
-          ExplicitHeight = 120
           RowHeights = (
             24
             24
@@ -253,7 +249,6 @@ object frmConfiguracoes: TfrmConfiguracoes
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitTop = -6
           object Label10: TLabel
             Left = 252
             Top = 12
